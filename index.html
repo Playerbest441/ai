@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>هوش مصنوعی؛ از آغاز تا دنیای شبکه‌های هوشمند</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2f80ff;--blue-l:#5aa9ff;--cyan:#22e0d6;--cyan-l:#8bfff4;
+  --violet:#8b7dff;--ink:#eaf2ff;--line:rgba(110,170,255,.22);
+}
+html,body{height:100%;width:100%}
+body{
+  background:radial-gradient(1400px 800px at 50% -15%, #0e2255 0%, #060c22 50%, #02040d 100%);
+  font-family:'Vazirmatn',Tahoma,system-ui,sans-serif;
+  color:var(--ink);overflow:hidden;direction:rtl;
+  -webkit-font-smoothing:antialiased;font-size:17px;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+svg text{font-family:'Vazirmatn',Tahoma,sans-serif}
+img{display:block;max-width:100%}
+
+#viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden;padding-bottom:64px}
+#stage{
+  position:relative;width:1280px;height:720px;
+  transform-origin:center center;border-radius:22px;overflow:hidden;
+  background:
+    radial-gradient(900px 500px at 12% 0%, rgba(47,128,255,.22), transparent 62%),
+    radial-gradient(820px 620px at 92% 102%, rgba(34,224,214,.15), transparent 62%),
+    radial-gradient(700px 500px at 80% 0%, rgba(139,125,255,.12), transparent 60%),
+    linear-gradient(160deg,#070f2b 0%,#050a1c 45%,#03060f 100%);
+  box-shadow:0 60px 140px rgba(0,0,0,.8),0 0 0 1px rgba(90,150,255,.14),inset 0 0 160px rgba(0,40,120,.28);
+}
+#stage::before{
+  content:'';position:absolute;inset:-2px;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(80,140,255,.075) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(80,140,255,.075) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(circle at 50% 42%,#000 25%,transparent 76%);
+  mask-image:radial-gradient(circle at 50% 42%,#000 25%,transparent 76%);
+  animation:gridPan 30s linear infinite;z-index:0;
+}
+@keyframes gridPan{to{background-position:52px 52px,52px 52px}}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;opacity:.55;animation:blobFloat 20s ease-in-out infinite}
+.blob.b1{width:520px;height:520px;background:radial-gradient(circle,#1d6bff,transparent 70%);top:-160px;right:-120px}
+.blob.b2{width:460px;height:460px;background:radial-gradient(circle,#12d8c8,transparent 70%);bottom:-180px;left:-120px;animation-delay:-7s}
+.blob.b3{width:380px;height:380px;background:radial-gradient(circle,#8b7dff,transparent 70%);top:42%;left:38%;animation-delay:-13s;opacity:.35}
+@keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-40px,30px) scale(1.08)}66%{transform:translate(30px,-25px) scale(.95)}}
+
+.slide{
+  position:absolute;inset:0;padding:44px 56px 38px;
+  display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;
+  transform:scale(.94) translateY(26px) rotateX(8deg);
+  filter:blur(10px);
+  transition:opacity .7s ease, transform .9s cubic-bezier(.2,.85,.25,1), filter .7s ease, visibility .7s;
+  z-index:2;perspective:1400px;
+}
+.slide.active{opacity:1;visibility:visible;transform:none;filter:blur(0)}
+[data-anim]{opacity:0}
+.slide.active [data-anim]{
+  animation:var(--an,riseIn) .95s cubic-bezier(.2,.85,.25,1) both;
+  animation-delay:var(--d,0s);
+}
+@keyframes riseIn{from{opacity:0;transform:translateY(40px) scale(.96);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.7)}62%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+@keyframes justFade{from{opacity:0}to{opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes floaty2{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-7px) rotate(3deg)}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+@keyframes pulseGlow{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,224,214,.5)}50%{box-shadow:0 0 0 14px rgba(34,224,214,0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
+@keyframes kenburns{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.16) translate(-2%,-2%)}}
+
+.img-frame{
+  position:relative;overflow:hidden;border-radius:16px;
+  background:linear-gradient(135deg,rgba(47,128,255,.3),rgba(34,224,214,.18),rgba(139,125,255,.25));
+  border:1px solid rgba(120,200,255,.32);
+  box-shadow:0 20px 50px rgba(0,40,120,.4), inset 0 0 60px rgba(0,50,140,.25);
+}
+.img-frame img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.85,.25,1)}
+.img-frame:hover img{transform:scale(1.08) rotate(1deg)}
+.img-frame.no-img::before{
+  content:attr(data-label);position:absolute;inset:0;display:grid;place-items:center;
+  font-size:13px;font-weight:800;color:#cfe3ff;
+  background:repeating-linear-gradient(45deg,rgba(47,128,255,.16) 0 14px,rgba(34,224,214,.08) 14px 28px);
+  text-align:center;padding:12px;
+}
+.img-frame.shine::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.28) 45%,transparent 60%);
+  background-size:200% 100%;animation:shimmer 4s ease-in-out infinite;pointer-events:none;
+}
+
+.s-head{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex:0 0 auto}
+.s-head h2{font-size:34px;font-weight:800;letter-spacing:-.5px;line-height:1.3}
+.s-num{
+  font-size:16px;font-weight:900;color:#04101f;
+  background:linear-gradient(135deg,var(--cyan),var(--blue-l));
+  padding:8px 16px;border-radius:12px;flex:0 0 auto;
+  box-shadow:0 8px 26px rgba(34,224,214,.35);
+  animation:glowPulse 2.6s ease-in-out infinite;
+}
+.s-head::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(110,170,255,.05),var(--line))}
+.card{
+  background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  border:1px solid var(--line);border-radius:18px;padding:16px 18px;
+  position:relative;overflow:hidden;backdrop-filter:blur(10px);
+  transition:transform .4s cubic-bezier(.2,.85,.25,1), border-color .4s, box-shadow .4s;
+}
+.card:hover{transform:translateY(-6px) scale(1.012);border-color:rgba(120,200,255,.5);box-shadow:0 24px 52px rgba(0,60,170,.42)}
+.ic{width:26px;height:26px;color:var(--cyan);flex:0 0 auto}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
+  background:rgba(47,128,255,.13);border:1px solid rgba(90,170,255,.3);
+  font-size:13px;font-weight:600;color:#cfe3ff;white-space:nowrap;transition:.3s;
+}
+.chip:hover{transform:translateY(-3px);background:rgba(47,128,255,.25)}
+.chip.c{background:rgba(34,224,214,.12);border-color:rgba(34,224,214,.34);color:#c6fffa}
+.chip.v{background:rgba(139,125,255,.13);border-color:rgba(139,125,255,.34);color:#ddd8ff}
+.grad{background:linear-gradient(100deg,#5aa9ff 0%,#22e0d6 45%,#8b7dff 100%);background-size:200% 200%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:gradientShift 6s ease-in-out infinite;}
+
+/* ============ SLIDE 1 ============ */
+.slide-cover{padding:0;justify-content:center;align-items:center;text-align:center}
+.cover-bg{position:absolute;inset:0;background:url('images/cover.jpg') center/cover no-repeat;opacity:.28;
+  filter:brightness(.55) saturate(1.1);animation:kenburns 24s ease-in-out infinite alternate;z-index:0}
+.cover-bg::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%, transparent 20%, rgba(3,7,26,.85) 75%),
+             linear-gradient(180deg, rgba(3,7,26,.5), rgba(3,7,26,.9));}
+.neural{position:absolute;inset:0;width:100%;height:100%;opacity:.85;z-index:1}
+.cover-orb{position:absolute;width:680px;height:680px;border-radius:50%;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(47,128,255,.24) 0%,rgba(34,224,214,.1) 42%,transparent 68%);
+  animation:pulseGlow 7s ease-in-out infinite;z-index:1;pointer-events:none}
+.cover-orb::before,.cover-orb::after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(90,180,255,.2);inset:0;animation:spinSlow 40s linear infinite}
+.cover-orb::before{border-top-color:rgba(34,224,214,.7);border-bottom-color:transparent;inset:70px}
+.cover-orb::after{animation-duration:26s;animation-direction:reverse;border-left-color:rgba(139,125,255,.7);border-right-color:transparent;inset:130px}
+.cover-content{position:relative;z-index:3;padding:0 60px;display:flex;flex-direction:column;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:#a9c6f5;
+  background:rgba(255,255,255,.06);border:1px solid rgba(110,170,255,.3);
+  padding:9px 20px;border-radius:999px;backdrop-filter:blur(8px);margin-bottom:24px}
+.eyebrow .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan);animation:pulseGlow 2s ease-in-out infinite}
+.cover-title{font-size:104px;font-weight:900;line-height:1.05;letter-spacing:-3px;
+  text-shadow:0 0 80px rgba(47,128,255,.6),0 0 160px rgba(34,224,214,.3)}
+.cover-sub{font-size:42px;font-weight:800;margin-top:6px;letter-spacing:-1px;line-height:1.3;color:#daeaff}
+.cover-rule{width:220px;height:4px;border-radius:4px;margin:26px 0 20px;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--blue),transparent);
+  background-size:200% 100%;animation:gradientShift 4s ease-in-out infinite;
+  box-shadow:0 0 26px rgba(34,224,214,.7)}
+.cover-desc{font-size:20px;color:#b9cdf0;font-weight:500;line-height:1.9;max-width:800px}
+.cover-meta{display:flex;align-items:center;gap:24px;margin-top:42px;padding:15px 28px;border-radius:18px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(110,170,255,.24);
+  backdrop-filter:blur(10px);animation:floaty 5s ease-in-out infinite}
+.meta-item{display:flex;flex-direction:column;gap:4px;min-width:120px}
+.meta-item span{font-size:12.5px;color:#7d95bd;font-weight:600}
+.meta-item b{font-size:16px;font-weight:700;color:#dceaff}
+.meta-sep{width:1px;height:40px;background:linear-gradient(180deg,transparent,rgba(110,170,255,.5),transparent)}
+
+/* ============ SHARED LAYOUTS ============ */
+.two-col{display:grid;gap:20px;flex:1;min-height:0}
+.two-col.flip{grid-template-columns:.72fr 1.45fr}
+.side-img{display:flex;flex-direction:column;gap:12px;min-width:0}
+.side-img .img-frame{flex:1;min-height:0}
+.def-card{display:flex;flex-direction:column;gap:9px;min-width:0}
+.def-big{font-size:19px;font-weight:800;line-height:1.7;color:#eaf2ff}
+.def-big em{font-style:normal;color:var(--cyan);font-weight:900;text-shadow:0 0 20px rgba(34,224,214,.5)}
+.def-en{font-size:12px;letter-spacing:2.5px;color:#7fb6ff;font-weight:700;direction:ltr;text-align:left;font-family:ui-monospace,monospace}
+.def-list{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.tl-mini{display:flex;flex-direction:column;gap:9px;min-width:0}
+.tl-node{
+  display:flex;gap:12px;align-items:flex-start;padding:10px 13px;border-radius:13px;
+  background:linear-gradient(100deg,rgba(255,255,255,.08),rgba(255,255,255,.018));
+  border:1px solid var(--line);position:relative;overflow:hidden;transition:.4s;min-width:0;
+}
+.tl-node:hover{transform:translateX(-8px);border-color:rgba(120,200,255,.55);box-shadow:0 16px 36px rgba(0,60,170,.35)}
+.tl-node::before{content:'';position:absolute;right:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--cyan),var(--blue));opacity:.9;animation:pulseGlow 3s ease-in-out infinite}
+.tl-year{font-size:13.5px;font-weight:900;color:#04101f;
+  background:linear-gradient(135deg,var(--cyan),var(--blue-l));
+  padding:4px 10px;border-radius:9px;flex:0 0 auto;min-width:64px;text-align:center;
+  box-shadow:0 6px 20px rgba(34,224,214,.35)}
+.tl-txt{font-size:14.5px;line-height:1.7;color:#c9dbf5;font-weight:500;min-width:0}
+.tl-txt b{color:#fff;font-weight:800}
+.note-strip{margin-top:8px;padding:10px 14px;border-radius:12px;
+  background:linear-gradient(90deg,rgba(34,224,214,.12),rgba(47,128,255,.06));
+  border:1px solid rgba(34,224,214,.34);font-size:14px;font-weight:600;color:#bdf6f0;
+  display:flex;align-items:center;gap:10px}
+
+/* SLIDE 3 */
+.people{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;flex:1;align-content:center}
+.person{display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;
+  padding:14px 10px 16px;border-radius:18px;
+  background:linear-gradient(170deg,rgba(255,255,255,.08),rgba(255,255,255,.018));
+  border:1px solid var(--line);position:relative;overflow:hidden;
+  transition:transform .5s cubic-bezier(.2,.85,.25,1),border-color .4s,box-shadow .4s;min-width:0}
+.person:hover{transform:translateY(-10px) scale(1.04);border-color:rgba(120,200,255,.6);box-shadow:0 26px 55px rgba(0,60,170,.48)}
+
+/* 🔧 FIXED person-img */
+.person-img{
+  width:100px;height:100px;border-radius:50%;overflow:hidden;position:relative;
+  box-shadow:0 0 0 4px rgba(90,170,255,.18),0 12px 34px rgba(34,224,214,.35);
+  background:linear-gradient(135deg,#8bfff4,#5aa9ff);
+  display:grid;place-items:center;flex:0 0 auto;z-index:1;
+}
+.person-img::before{
+  content:attr(data-initials);
+  font-size:30px;font-weight:900;color:#04101f;
+  line-height:1;user-select:none;
+}
+.person-img img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center 20%;
+  z-index:2;
+}
+
+.person h3{font-size:14.5px;font-weight:800;line-height:1.4;position:relative;z-index:1;word-break:break-word}
+.person p{font-size:12.5px;line-height:1.7;color:#9db2d8;font-weight:500}
+.person .tag{font-size:11px;font-weight:700;color:#7fe9e0;background:rgba(34,224,214,.14);padding:4px 10px;border-radius:999px}
+
+/* SLIDE 4 */
+.tl-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.tl-row{display:grid;gap:12px}
+.tl-row.r1{grid-template-columns:repeat(4,1fr)}
+.tl-row.r2{grid-template-columns:repeat(3,1fr)}
+.tl-card{position:relative;padding:12px;border-radius:16px;
+  background:linear-gradient(165deg,rgba(255,255,255,.08),rgba(255,255,255,.018));
+  border:1px solid var(--line);overflow:hidden;
+  transition:transform .4s,border-color .4s,box-shadow .4s;min-width:0}
+.tl-card:hover{transform:translateY(-7px);border-color:rgba(120,200,255,.55);box-shadow:0 22px 48px rgba(0,60,170,.4)}
+.tl-img{height:62px;border-radius:11px;margin-bottom:8px}
+.tl-card .yr{display:inline-block;font-size:12px;font-weight:900;color:#04101f;
+  background:linear-gradient(135deg,var(--cyan),var(--blue-l));
+  padding:4px 10px;border-radius:8px;margin-bottom:8px}
+.tl-card h4{font-size:14.5px;font-weight:800;margin-bottom:5px;line-height:1.45}
+.tl-card p{font-size:12.5px;line-height:1.65;color:#96acd1;font-weight:500}
+.tl-card.hot{border-color:rgba(34,224,214,.45);background:linear-gradient(165deg,rgba(34,224,214,.14),rgba(255,255,255,.02))}
+.tl-card.winter{border-color:rgba(139,125,255,.4);background:linear-gradient(165deg,rgba(139,125,255,.13),rgba(255,255,255,.02))}
+.tl-flow{display:flex;align-items:center;gap:10px;padding-right:4px;color:#5f7bab;font-size:12.5px;font-weight:600}
+.tl-flow i{width:26px;height:1px;background:linear-gradient(90deg,transparent,#3a6bb5)}
+
+/* SLIDE 5 */
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;flex:0 0 auto}
+.why-card{padding:18px 14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.why-num{font-size:30px;font-weight:900;line-height:1;
+  background:linear-gradient(135deg,var(--cyan),var(--blue-l));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.why-ico{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;
+  background:linear-gradient(140deg,rgba(47,128,255,.24),rgba(34,224,214,.14));
+  border:1px solid rgba(110,170,255,.34);transition:.5s;animation:floaty2 4s ease-in-out infinite}
+.why-card:nth-child(2) .why-ico{animation-delay:-1s}
+.why-card:nth-child(3) .why-ico{animation-delay:-2s}
+.why-card:nth-child(4) .why-ico{animation-delay:-3s}
+.why-card:hover .why-ico{transform:rotate(-10deg) scale(1.14);border-color:rgba(34,224,214,.7)}
+.why-ico .ic{width:28px;height:28px}
+.why-card h4{font-size:16px;font-weight:800}
+.why-card p{font-size:13px;line-height:1.7;color:#96acd1;font-weight:500}
+.conclusion{margin-top:14px;padding:14px 20px;border-radius:16px;
+  background:linear-gradient(100deg,rgba(34,224,214,.14),rgba(47,128,255,.07));
+  border:1px solid rgba(34,224,214,.35);display:flex;align-items:center;gap:12px;
+  font-size:15.5px;font-weight:700;color:#c9f7f2;position:relative;overflow:hidden}
+.conclusion::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.14) 45%,transparent 60%);
+  background-size:200% 100%;animation:shimmer 5s ease-in-out infinite;pointer-events:none}
+.conclusion .ic{width:28px;height:28px;color:var(--cyan)}
+
+/* SLIDE 6 */
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:7px;min-width:0}
+.fact{display:flex;gap:8px;align-items:flex-start;padding:8px 11px;border-radius:11px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(110,170,255,.18);
+  font-size:12.5px;line-height:1.6;color:#c9dbf5;font-weight:500;transition:.35s;min-width:0}
+.fact:hover{background:rgba(47,128,255,.12);border-color:rgba(120,200,255,.5);transform:translateX(-5px)}
+.fact .b{color:var(--cyan);font-weight:900;flex:0 0 auto}
+.fact b{color:#fff}
+.flow{display:flex;flex-direction:column;gap:0;flex:0 0 auto;min-width:0}
+.flow-step{display:flex;align-items:center;gap:11px;padding:9px 13px;border-radius:11px;
+  background:linear-gradient(100deg,rgba(255,255,255,.08),rgba(255,255,255,.018));
+  border:1px solid var(--line);transition:.4s}
+.flow-step:hover{border-color:rgba(34,224,214,.55);transform:scale(1.02)}
+.flow-step .n{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+  font-size:12px;font-weight:900;color:#04101f;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--cyan),var(--blue-l))}
+.flow-step span{font-size:13.5px;font-weight:700}
+.flow-arrow{height:14px;display:grid;place-items:center;color:#3f6bb0;font-size:13px}
+.warn-box{padding:9px 13px;border-radius:11px;
+  background:rgba(255,170,60,.11);border:1px solid rgba(255,180,80,.36);
+  font-size:13px;font-weight:600;color:#ffdda8;display:flex;gap:10px;align-items:center}
+.warn-box .ic{color:#ffc061;width:20px;height:20px}
+
+/* SLIDE 7 */
+.venn-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px}
+.venn{width:100%;max-width:300px;height:auto;overflow:visible}
+.vt{fill:#dbe9ff;font-weight:800;font-size:15px}
+.vt.sm{font-size:13.5px;fill:#a9c6f5}
+.ability-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ability{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:13px;
+  background:linear-gradient(120deg,rgba(255,255,255,.07),rgba(255,255,255,.015));
+  border:1px solid var(--line);font-size:14px;font-weight:700;color:#d3e3ff;transition:.35s}
+.ability:hover{transform:translateX(-8px);border-color:rgba(34,224,214,.55);background:rgba(34,224,214,.1)}
+.ability .ic{width:21px;height:21px}
+.dl-note{margin-top:10px;font-size:13px;color:#a4b8db;line-height:1.8;font-weight:500;
+  padding:10px 14px;border-radius:12px;background:rgba(139,125,255,.1);border:1px solid rgba(139,125,255,.3)}
+
+/* SLIDE 8 */
+.equip-row{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;flex:0 0 auto}
+.equip{display:flex;flex-direction:column;align-items:center;gap:7px;
+  padding:10px 8px 12px;border-radius:15px;text-align:center;
+  background:linear-gradient(165deg,rgba(255,255,255,.08),rgba(255,255,255,.018));
+  border:1px solid var(--line);transition:.4s;min-width:0}
+.equip:hover{transform:translateY(-8px);border-color:rgba(34,224,214,.55);box-shadow:0 20px 44px rgba(0,60,170,.42)}
+.equip-img{width:100%;height:64px;border-radius:10px;margin-bottom:2px}
+.equip h5{font-size:14px;font-weight:800}
+.equip small{font-size:10.5px;color:#7d95bd;direction:ltr;font-family:ui-monospace,monospace}
+.equip p{font-size:11.5px;line-height:1.55;color:#93a9cf;font-weight:500}
+.pipe{display:flex;align-items:stretch;margin-top:14px;padding:14px;border-radius:18px;
+  background:linear-gradient(120deg,rgba(47,128,255,.12),rgba(34,224,214,.06));
+  border:1px solid rgba(110,170,255,.24);flex:1;align-content:center}
+.pipe-inner{display:flex;align-items:center;justify-content:space-between;width:100%;gap:5px}
+.pipe-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;
+  padding:11px 6px;border-radius:13px;background:rgba(255,255,255,.055);
+  border:1px solid rgba(110,170,255,.22);transition:.4s;min-width:0}
+.pipe-step:hover{background:rgba(34,224,214,.12);border-color:rgba(34,224,214,.55);transform:translateY(-6px)}
+.pipe-step .ic{width:22px;height:22px}
+.pipe-step span{font-size:12px;font-weight:700;line-height:1.45;color:#d3e3ff}
+.pipe-arrow{flex:0 0 auto;color:#3f6bb0;font-size:18px;animation:nudge 2s ease-in-out infinite}
+
+/* SLIDE 9 */
+.sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:0 0 auto}
+.sec-panel{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+.sec-head{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;margin-bottom:2px}
+.sec-head .ic{width:24px;height:24px}
+.sec-panel ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.sec-panel li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.65;color:#bed2f0;font-weight:500}
+.sec-panel li::before{content:'';flex:0 0 auto;width:7px;height:7px;border-radius:50%;margin-top:8px;
+  background:linear-gradient(135deg,var(--cyan),var(--blue-l));box-shadow:0 0 10px rgba(34,224,214,.7)}
+.example{margin-top:12px;padding:14px 18px;border-radius:16px;
+  background:linear-gradient(100deg,rgba(47,128,255,.14),rgba(139,125,255,.07));
+  border:1px solid rgba(110,170,255,.3);display:flex;gap:14px;align-items:flex-start}
+.example .ic{width:26px;height:26px;color:var(--blue-l);margin-top:3px}
+.example p{font-size:13.5px;line-height:1.85;color:#c9dbf5;font-weight:500}
+.example p b{color:#8bfff4;font-weight:800}
+
+/* SLIDE 10 */
+.hw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;align-content:center}
+.hw-card{display:flex;gap:12px;align-items:center;padding:12px 14px;min-width:0}
+.hw-img{width:66px;height:66px;border-radius:13px;flex:0 0 auto}
+.hw-card h4{font-size:15px;font-weight:800;margin-bottom:4px}
+.hw-card p{font-size:12.5px;line-height:1.65;color:#93a9cf;font-weight:500}
+.proc-note{margin-top:12px;display:flex;gap:12px;align-items:center;justify-content:center;
+  padding:12px 18px;border-radius:14px;
+  background:rgba(139,125,255,.1);border:1px solid rgba(139,125,255,.3);
+  font-size:13.5px;font-weight:600;color:#ddd8ff;flex-wrap:wrap;text-align:center}
+
+/* SLIDE 11 */
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;min-height:0}
+.pc-panel{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.pc-panel.good{border-color:rgba(34,224,214,.38);background:linear-gradient(165deg,rgba(34,224,214,.11),rgba(255,255,255,.015))}
+.pc-panel.bad{border-color:rgba(255,150,90,.34);background:linear-gradient(165deg,rgba(255,150,90,.1),rgba(255,255,255,.015))}
+.pc-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800}
+.pc-title .ic{width:24px;height:24px}
+.pc-panel.good .pc-title .ic{color:var(--cyan)}
+.pc-panel.bad .pc-title .ic{color:#ffa46b}
+.pc-panel ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.pc-panel li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.65;color:#bed2f0;font-weight:500}
+.pc-panel li .ic{width:17px;height:17px;margin-top:3px;flex:0 0 auto}
+.pc-panel.good li .ic{color:var(--cyan)}
+.pc-panel.bad li .ic{color:#ff9a5c}
+.future-strip{margin-top:12px;padding:13px 18px;border-radius:16px;
+  background:linear-gradient(100deg,rgba(47,128,255,.14),rgba(34,224,214,.07));
+  border:1px solid rgba(110,170,255,.28);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.future-strip .lbl{font-size:15px;font-weight:800;color:#8bfff4;flex:0 0 auto}
+
+/* SLIDE 12 */
+.slide-final{overflow:hidden}
+.final-bg{position:absolute;inset:0;background:url('images/final-bg.jpg') center/cover no-repeat;
+  opacity:.22;filter:brightness(.5) saturate(1.15);animation:kenburns 26s ease-in-out infinite alternate;z-index:0}
+.final-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, transparent 25%, rgba(3,7,26,.85) 80%)}
+.sum-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;position:relative;z-index:3}
+.sum-item{display:flex;gap:14px;align-items:flex-start;padding:13px 18px;border-radius:16px;
+  background:linear-gradient(100deg,rgba(255,255,255,.08),rgba(255,255,255,.018));
+  border:1px solid var(--line);transition:.4s}
+.sum-item:hover{transform:translateX(-9px);border-color:rgba(120,200,255,.55)}
+.sum-item .n{width:36px;height:36px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;
+  font-size:16px;font-weight:900;color:#04101f;
+  background:linear-gradient(135deg,var(--cyan),var(--blue-l))}
+.sum-item p{font-size:15px;line-height:1.8;color:#c9dbf7;font-weight:600}
+.big-quote{text-align:center;font-size:26px;font-weight:900;line-height:1.7;padding:20px 26px;border-radius:20px;
+  background:linear-gradient(100deg,rgba(47,128,255,.16),rgba(34,224,214,.1),rgba(139,125,255,.12));
+  background-size:200% 200%;animation:gradientShift 8s ease-in-out infinite;
+  border:1px solid rgba(110,170,255,.34)}
+.end-box{text-align:center;margin-top:2px}
+.end-thanks{font-size:38px;font-weight:900;letter-spacing:-.8px;
+  background:linear-gradient(100deg,#8bfff4,#5aa9ff,#8b7dff);background-size:200% 200%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:gradientShift 5s ease-in-out infinite}
+.end-qa{display:inline-flex;align-items:center;gap:10px;margin-top:12px;font-size:16.5px;font-weight:700;color:#a9c6f5;
+  padding:10px 24px;border-radius:999px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(110,170,255,.3);animation:floaty 4s ease-in-out infinite}
+.end-qa .dot{width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan);animation:pulseGlow 1.8s ease-in-out infinite}
+
+/* ============ HUD ============ */
+.hud{position:fixed;bottom:0;left:0;right:0;z-index:100;pointer-events:none}
+.hud-progress{height:4px;width:100%;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
+.hud-progress i{position:absolute;top:0;right:0;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--cyan),var(--blue-l),var(--violet));
+  box-shadow:0 0 18px rgba(34,224,214,.8);
+  transition:width .5s cubic-bezier(.2,.85,.25,1)}
+.hud-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 16px;pointer-events:auto}
+.hud-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(255,255,255,.07);border:1px solid rgba(110,170,255,.26);
+  color:#cfe3ff;font-size:20px;line-height:1;transition:.3s;backdrop-filter:blur(10px)}
+.hud-btn:hover{background:rgba(47,128,255,.28);border-color:rgba(120,200,255,.6);transform:translateY(-3px);color:#fff}
+.hud-btn:active{transform:translateY(0) scale(.94)}
+.hud-btn.small{width:36px;height:36px;font-size:15px}
+.dots{display:flex;align-items:center;gap:6px;padding:0 6px}
+.dot-btn{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.22);transition:.35s}
+.dot-btn:hover{background:rgba(120,200,255,.75);transform:scale(1.4)}
+.dot-btn.on{background:linear-gradient(135deg,var(--cyan),var(--blue-l));
+  box-shadow:0 0 14px rgba(34,224,214,.9);width:28px;border-radius:5px}
+.hud-count{font-size:13.5px;font-weight:700;color:#8fa9d0;padding:7px 13px;border-radius:11px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(110,170,255,.2);
+  min-width:74px;text-align:center;direction:rtl}
+
+/* ============ NOTES ============ */
+.notes{position:fixed;top:0;right:0;bottom:0;width:420px;z-index:200;
+  background:linear-gradient(160deg,rgba(8,16,42,.98),rgba(4,8,22,.99));
+  border-left:1px solid rgba(110,170,255,.26);backdrop-filter:blur(20px);
+  transform:translateX(105%);transition:transform .5s cubic-bezier(.2,.85,.25,1);
+  display:flex;flex-direction:column;box-shadow:-30px 0 80px rgba(0,0,0,.65)}
+.notes.open{transform:translateX(0)}
+.notes-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;
+  border-bottom:1px solid rgba(110,170,255,.2);font-size:15px;font-weight:800;color:#8bfff4}
+.notes-head button{width:32px;height:32px;border-radius:10px;font-size:18px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(110,170,255,.24);
+  color:#cfe3ff;display:grid;place-items:center;transition:.25s}
+.notes-head button:hover{background:rgba(255,90,90,.22);border-color:rgba(255,120,120,.55)}
+.notes-body{flex:1;overflow-y:auto;padding:22px;font-size:15px;line-height:2.05;color:#c3d5f2;font-weight:500}
+.notes-body::-webkit-scrollbar{width:7px}
+.notes-body::-webkit-scrollbar-thumb{background:rgba(90,170,255,.4);border-radius:7px}
+.notes-body h4{font-size:14px;color:#7fb6ff;margin-bottom:14px;font-weight:800}
+.notes-body .src{margin-top:16px;padding:12px 14px;border-radius:13px;
+  background:rgba(139,125,255,.1);border:1px solid rgba(139,125,255,.28);
+  font-size:13px;line-height:1.9;color:#bfb8ff}
+.notes-body .src b{color:#e0dbff}
+
+.hint{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
+  font-size:13px;color:#7d95bd;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid rgba(110,170,255,.22);
+  padding:7px 16px;border-radius:999px;z-index:99;backdrop-filter:blur(8px);
+  animation:hintOut 1s ease 7s forwards;pointer-events:none}
+@keyframes hintOut{to{opacity:0;transform:translateX(-50%) translateY(12px)}}
+
+/* ============ MOBILE ============ */
+@media (max-width: 900px){
+  html,body{overflow-x:hidden;overflow-y:auto;height:auto}
+  #viewport{position:relative;display:block;inset:auto;padding:0 0 74px;overflow:visible}
+  #stage{width:100%!important;height:auto!important;min-height:100vh;
+    transform:none!important;border-radius:0;overflow:visible;box-shadow:none}
+  #stage::before{opacity:.5}
+  .blob{display:none}
+
+  .slide{position:relative!important;inset:auto!important;width:100%;
+    min-height:calc(100vh - 74px);padding:20px 16px 28px;display:none;
+    opacity:1!important;visibility:visible!important;transform:none!important;
+    filter:none!important;perspective:none}
+  .slide.active{display:flex;flex-direction:column;
+    animation:mobileIn .55s cubic-bezier(.2,.85,.25,1) both}
+  @keyframes mobileIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .slide.active [data-anim]{animation-name:mobileIn!important;animation-duration:.5s!important}
+
+  .slide-cover{padding:24px 16px 20px}
+  .slide-cover.active{justify-content:center;align-items:center}
+  .cover-content{padding:0 4px}
+  .cover-title{font-size:52px;letter-spacing:-1.5px}
+  .cover-sub{font-size:22px;letter-spacing:-.4px}
+  .cover-desc{font-size:14px;line-height:1.75;max-width:100%}
+  .cover-rule{width:150px;margin:18px 0 14px;height:3px}
+  .eyebrow{font-size:12px;padding:7px 14px;margin-bottom:16px}
+  .cover-orb{width:400px;height:400px}
+  .cover-meta{flex-direction:column;gap:10px;margin-top:22px;padding:14px 18px;animation:none;width:100%}
+  .meta-sep{display:none}
+  .meta-item{min-width:0;text-align:center;width:100%}
+  .meta-item b{font-size:14px}
+  .meta-item span{font-size:11.5px}
+
+  .s-head{gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .s-head h2{font-size:20px;line-height:1.35}
+  .s-num{font-size:12px;padding:5px 10px;border-radius:9px}
+  .s-head::after{display:none}
+
+  .two-col,.two-col.flip{grid-template-columns:1fr!important;gap:14px}
+  .two-col > *{min-width:0}
+  .side-img .img-frame{height:180px;flex:0 0 auto}
+
+  .people{grid-template-columns:repeat(2,1fr);gap:10px}
+  .person{padding:12px 8px 14px;gap:7px}
+  .person-img{width:76px;height:76px}
+  .person-img::before{font-size:22px}
+  .person h3{font-size:13px}
+  .person p{font-size:11.5px;line-height:1.55}
+  .person .tag{font-size:10px;padding:3px 8px}
+
+  .tl-row.r1,.tl-row.r2{grid-template-columns:1fr;gap:10px}
+  .tl-card{padding:12px}
+  .tl-img{height:110px}
+  .tl-flow{display:none}
+
+  .why-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .why-card{padding:14px 10px}
+  .why-num{font-size:24px}
+  .why-ico{width:46px;height:46px;border-radius:13px}
+  .why-ico .ic{width:22px;height:22px}
+  .why-card h4{font-size:13.5px}
+  .why-card p{font-size:11.5px;line-height:1.6}
+
+  .facts{grid-template-columns:1fr;gap:6px}
+  .fact{padding:8px 10px;font-size:12px}
+  .flow-step{padding:9px 12px}
+  .flow-step .n{width:24px;height:24px;font-size:11px}
+  .flow-step span{font-size:13px}
+  .warn-box{font-size:12px;padding:9px 12px}
+
+  .venn-wrap{gap:10px}
+  .venn{max-width:230px}
+  .vt{font-size:14px}.vt.sm{font-size:12.5px}
+  .ability-grid{grid-template-columns:1fr;gap:8px}
+  .ability{padding:10px 12px;font-size:13px;gap:9px}
+  .ability .ic{width:19px;height:19px}
+  .dl-note{font-size:12px;padding:9px 12px}
+
+  .equip-row{grid-template-columns:repeat(2,1fr);gap:9px}
+  .equip{padding:9px 7px 11px}
+  .equip-img{height:56px}
+  .equip h5{font-size:12.5px}
+  .equip p{font-size:11px}
+  .pipe{padding:11px;margin-top:12px}
+  .pipe-inner{flex-wrap:wrap;gap:8px;justify-content:center}
+  .pipe-arrow{display:none}
+  .pipe-step{flex:1 1 calc(50% - 8px);min-width:0;padding:10px 6px}
+  .pipe-step span{font-size:11.5px}
+  .pipe-step .ic{width:20px;height:20px}
+
+  .sec-grid{grid-template-columns:1fr;gap:10px}
+  .sec-panel{padding:12px 14px}
+  .sec-head{font-size:15px}
+  .sec-panel li{font-size:12.5px}
+  .example{padding:12px 14px;gap:11px;margin-top:10px}
+  .example p{font-size:12.5px;line-height:1.75}
+  .example .ic{width:22px;height:22px}
+
+  .hw-grid{grid-template-columns:1fr;gap:9px}
+  .hw-card{flex-direction:row;padding:11px 12px;gap:11px}
+  .hw-img{width:60px;height:60px;border-radius:11px}
+  .hw-card h4{font-size:14px}
+  .hw-card p{font-size:12px}
+  .proc-note{font-size:12.5px;padding:11px 14px;gap:8px}
+
+  .pc-grid{grid-template-columns:1fr;gap:11px}
+  .pc-panel{padding:13px 15px}
+  .pc-title{font-size:15px}
+  .pc-panel li{font-size:12.5px}
+  .future-strip{padding:12px 14px;gap:7px}
+  .future-strip .lbl{font-size:13.5px}
+  .chip{font-size:11.5px;padding:4px 9px}
+  .conclusion{font-size:13.5px;padding:12px 15px;gap:10px;margin-top:12px}
+  .conclusion .ic{width:22px;height:22px}
+
+  .sum-item{padding:12px 15px;gap:12px}
+  .sum-item .n{width:32px;height:32px;font-size:14px}
+  .sum-item p{font-size:13px;line-height:1.7}
+  .big-quote{font-size:18px;padding:16px;line-height:1.65}
+  .end-thanks{font-size:28px}
+  .end-qa{font-size:14px;padding:9px 20px;margin-top:10px}
+
+  .hud-bar{padding:9px 10px;gap:6px}
+  .hud-btn{width:36px;height:36px;font-size:18px;border-radius:10px}
+  .hud-btn.small{width:32px;height:32px;font-size:13px}
+  .dots{gap:4px;padding:0 2px;flex-wrap:wrap;justify-content:center;max-width:150px}
+  .dot-btn{width:8px;height:8px}
+  .dot-btn.on{width:20px}
+  .hud-count{font-size:12px;padding:6px 10px;min-width:60px}
+
+  .hint{display:none}
+  .notes{width:100%}
+}
+@media (max-width: 400px){
+  .cover-title{font-size:44px}
+  .cover-sub{font-size:19px}
+  .why-grid{grid-template-columns:1fr}
+  .s-head h2{font-size:18px}
+  .big-quote{font-size:16px}
+  .end-thanks{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= SVG ICON SPRITE ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-router" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="12.5" width="19" height="8" rx="2.5"/><circle cx="7" cy="16.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="11" cy="16.5" r="1.1" fill="currentColor" stroke="none"/><path d="M12 12.5V7"/><path d="M8.6 9.6 12 6.2l3.4 3.4"/></symbol>
+<symbol id="i-switch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9" width="19" height="8" rx="2"/><path d="M6.5 13h11"/><path d="M6.5 13l2.2-2.2M6.5 13l2.2 2.2"/><path d="M17.5 13l-2.2-2.2M17.5 13l-2.2 2.2"/></symbol>
+<symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M4 9.2h16M4 15.4h16"/><circle cx="8" cy="6.1" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="12.3" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="18.5" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-ap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14.5" r="2"/><path d="M12 16.5V21"/><path d="M8.4 11a5.2 5.2 0 0 1 7.2 0"/><path d="M5.4 7.8a9.5 9.5 0 0 1 13.2 0"/></symbol>
+<symbol id="i-client" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M1.5 19.5h21"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 5 5.8v6c0 4.4 2.9 7.6 7 9.4 4.1-1.8 7-5 7-9.4v-6z"/><path d="m9 12 2.2 2.2L15.4 10"/></symbol>
+<symbol id="i-firewall" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.3h18M3 14.6h18M9 4v5.3M15 9.3v5.3M9 14.6V20"/></symbol>
+<symbol id="i-dc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M2.5 9.3h19M2.5 14.6h19"/><path d="M6.5 6.6h7M6.5 11.9h7M6.5 17.2h7"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.2 18.5a4.2 4.2 0 0 1-.3-8.4 5.6 5.6 0 0 1 10.7-1.6 4.2 4.2 0 0 1 .7 10z"/></symbol>
+<symbol id="i-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5a3 3 0 0 0-5.7-1.3A3 3 0 0 0 4 7.2a3 3 0 0 0 .6 4.5A3 3 0 0 0 6 16.9a3 3 0 0 0 6 1.1z"/><path d="M12 5.5a3 3 0 0 1 5.7-1.3A3 3 0 0 1 20 7.2a3 3 0 0 1-.6 4.5A3 3 0 0 1 18 16.9a3 3 0 0 1-6 1.1z"/></symbol>
+<symbol id="i-chip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 2.5V7M14 2.5V7M10 17v4.5M14 17v4.5M2.5 10H7M2.5 14H7M17 10h4.5M17 14h4.5"/></symbol>
+<symbol id="i-data" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7.5" ry="3.2"/><path d="M4.5 6v12c0 1.8 3.4 3.2 7.5 3.2s7.5-1.4 7.5-3.2V6"/><path d="M4.5 12c0 1.8 3.4 3.2 7.5 3.2s7.5-1.4 7.5-3.2"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20.5h18"/><rect x="5" y="11.5" width="3.2" height="6.5" rx="1"/><rect x="10.4" y="7" width="3.2" height="11" rx="1"/><rect x="15.8" y="3.5" width="3.2" height="14.5" rx="1"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21.5 20h-19z"/><path d="M12 9.5v4.5M12 17h.01"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 19.5a6.2 6.2 0 0 1 12.4 0"/><path d="M16.5 5.5a3.2 3.2 0 0 1 0 6.4"/><path d="M17.5 13.6a6.2 6.2 0 0 1 3.7 5.9"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></symbol>
+<symbol id="i-rocket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3c3.5 0 7 3.5 7 7-1.5 4-5 7.5-9 9l-3.5-3.5C10.5 11.5 12 7 14 3z"/><path d="M8.5 15.5 4 20"/><circle cx="15" cy="9" r="1.6"/></symbol>
+</defs>
+</svg>
+
+<!-- ================= STAGE ================= -->
+<div id="viewport">
+  <div id="stage">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+    <!-- ===== SLIDE 1 ===== -->
+    <section class="slide slide-cover active">
+      <div class="cover-bg"></div>
+      <svg class="neural" id="neural" viewBox="0 0 1280 720"></svg>
+      <div class="cover-orb"></div>
+      <div class="cover-content">
+        <div class="eyebrow" data-anim style="--d:.15s"><span class="dot"></span> ارائه درس شبکه • پایه دوازدهم فنی‌وحرفه‌ای</div>
+        <h1 class="cover-title grad" data-anim style="--d:.3s">هوش مصنوعی</h1>
+        <h2 class="cover-sub" data-anim style="--d:.45s">از آغاز تا دنیای شبکه‌های هوشمند</h2>
+        <div class="cover-rule" data-anim style="--d:.6s"></div>
+        <p class="cover-desc" data-anim style="--d:.72s">تاریخچه، پیشرفت‌ها و کاربردهای هوش مصنوعی در شبکه و تجهیزات شبکه</p>
+        <div class="cover-meta" data-anim style="--d:.9s">
+          <div class="meta-item"><span>دانش‌آموز</span><b>..................</b></div>
+          <div class="meta-sep"></div>
+          <div class="meta-item"><span>پایه</span><b>دوازدهم فنی‌وحرفه‌ای</b></div>
+          <div class="meta-sep"></div>
+          <div class="meta-item"><span>رشته</span><b>شبکه و نرم‌افزار</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 2 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۲</span><h2>هوش مصنوعی چیست و ایده آن از کجا آمد؟</h2></header>
+      <div class="two-col flip">
+        <div class="side-img" data-anim style="--d:.18s">
+          <div class="img-frame shine" data-label="📸 images/old-computer.jpg">
+            <img src="images/old-computer.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()">
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:11px;min-width:0">
+          <div class="card def-card" data-anim style="--d:.12s">
+            <div class="def-big">هوش مصنوعی شاخه‌ای از <em>علوم رایانه</em> است که روش‌هایی برای تحلیل داده، تشخیص الگو، فهم زبان، پیش‌بینی و کمک به تصمیم‌گیری فراهم می‌کند.</div>
+            <div class="def-en">ARTIFICIAL INTELLIGENCE — AI</div>
+            <ul class="def-list">
+              <li class="chip c">تحلیل داده</li><li class="chip">تشخیص الگو</li><li class="chip v">فهم زبان</li>
+              <li class="chip c">پیش‌بینی</li><li class="chip">کمک به تصمیم‌گیری</li>
+            </ul>
+          </div>
+          <div class="tl-mini">
+            <div class="tl-node" data-anim style="--d:.3s"><span class="tl-year">۱۹۴۰</span><span class="tl-txt">پیشرفت <b>رایانه‌های الکترونیکی</b> و شکل‌گیری ایده مدل‌سازی محاسباتی فرایندهای ذهنی.</span></div>
+            <div class="tl-node" data-anim style="--d:.42s"><span class="tl-year">۱۹۵۰</span><span class="tl-txt"><b>آلن تورینگ</b> مقاله‌ای درباره امکان اندیشیدن ماشین‌ها منتشر کرد و آزمونی پیشنهاد داد که بعدها <b>آزمون تورینگ</b> نام گرفت.</span></div>
+            <div class="tl-node" data-anim style="--d:.54s"><span class="tl-year">۱۹۵۶</span><span class="tl-txt">در <b>کارگاه دارتموث</b> اصطلاح «هوش مصنوعی» رسماً مطرح شد؛ این رویداد <b>آغاز رسمی</b> این رشته است.</span></div>
+          </div>
+          <div class="note-strip" data-anim style="--d:.68s">
+            <svg class="ic" style="width:20px;height:20px"><use href="#i-alert"/></svg>
+            این ایده با ChatGPT به وجود نیامد؛ ریشه آن دهه‌ها پیش است.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 3 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۳</span><h2>چه کسانی هوش مصنوعی را به وجود آوردند؟</h2></header>
+      <div class="people">
+        <div class="person" data-anim style="--d:.1s">
+          <div class="person-img" data-initials="AT">
+            <img src="images/turing.jpg" alt="" onerror="this.remove()">
+          </div>
+          <span class="tag">پیشگام</span><h3>آلن تورینگ</h3>
+          <p>از پیشگامان علوم رایانه و مطرح‌کننده پرسش‌های بنیادی درباره هوشمندی ماشین‌ها.</p>
+        </div>
+        <div class="person" data-anim style="--d:.22s">
+          <div class="person-img" data-initials="JM">
+            <img src="images/mccarthy.jpg" alt="" onerror="this.remove()">
+          </div>
+          <span class="tag">نام‌گذار</span><h3>جان مک‌کارتی</h3>
+          <p>از افرادی که اصطلاح Artificial Intelligence را در شکل‌گیری رسمی این حوزه مطرح کرد.</p>
+        </div>
+        <div class="person" data-anim style="--d:.34s">
+          <div class="person-img" data-initials="MM">
+            <img src="images/minsky.jpg" alt="" onerror="this.remove()">
+          </div>
+          <span class="tag">پژوهشگر</span><h3>ماروین مینسکی</h3>
+          <p>از پژوهشگران تأثیرگذار در سال‌های اولیه شکل‌گیری هوش مصنوعی.</p>
+        </div>
+        <div class="person" data-anim style="--d:.46s">
+          <div class="person-img" data-initials="AS">
+            <img src="images/samuel.jpg" alt="" onerror="this.remove()">
+          </div>
+          <span class="tag">یادگیری ماشین</span><h3>آرتور ساموئل</h3>
+          <p>از پیشگامان یادگیری ماشین که روی برنامه‌های بازی چکرز کار کرد.</p>
+        </div>
+        <div class="person" data-anim style="--d:.58s">
+          <div class="person-img" data-initials="H·L·B">
+            <img src="images/deep-learning.jpg" alt="" onerror="this.remove()">
+          </div>
+          <span class="tag">یادگیری عمیق</span><h3>هینتون و همکاران</h3>
+          <p>از پژوهشگران تأثیرگذار در توسعه یادگیری عمیق و شبکه‌های عصبی مدرن.</p>
+        </div>
+      </div>
+      <div class="conclusion" data-anim style="--d:.75s">
+        <svg class="ic"><use href="#i-users"/></svg>
+        هوش مصنوعی اختراع یک نفر نیست؛ نتیجه کار چندین نسل از دانشمندان، ریاضی‌دانان و مهندسان در سراسر جهان است.
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 4 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۴</span><h2>هوش مصنوعی چگونه در طول زمان پیشرفت کرد؟</h2></header>
+      <div class="tl-wrap">
+        <div class="tl-row r1">
+          <div class="tl-card" data-anim style="--d:.08s">
+            <div class="img-frame tl-img" data-label="📸 1950s"><img src="images/ai-1950s.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+            <span class="yr">۱۹۵۰ – ۱۹۶۰</span><h4>آغاز پژوهش‌ها</h4><p>برنامه‌های اولیه برای حل مسئله، استدلال و بازی‌های رایانه‌ای.</p>
+          </div>
+          <div class="tl-card winter" data-anim style="--d:.18s">
+            <div class="img-frame tl-img" data-label="📸 AI Winter"><img src="images/ai-winter.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+            <span class="yr">۱۹۷۰ – ۱۹۸۰</span><h4>زمستان هوش مصنوعی</h4><p>محدودیت قدرت محاسباتی، داده و روش‌ها؛ کاهش حمایت مالی.</p>
+          </div>
+          <div class="tl-card" data-anim style="--d:.28s">
+            <div class="img-frame tl-img" data-label="📸 Expert Systems"><img src="images/expert-systems.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+            <span class="yr">دهه ۱۹۸۰</span><h4>سامانه‌های خبره</h4><p>برنامه‌هایی که از قواعد و دانش تخصصی استفاده می‌کردند.</p>
+          </div>
+          <div class="tl-card" data-anim style="--d:.38s">
+            <div class="img-frame tl-img" data-label="📸 ML"><img src="images/machine-learning.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+            <span class="yr">۱۹۹۰ – ۲۰۰۰</span><h4>روش‌های داده‌محور</h4><p>پیشرفت یادگیری ماشین و دسترسی به داده‌های بیشتر.</p>
+          </div>
+        </div>
+        <div class="tl-flow" data-anim style="--d:.5s"><i></i><span>ادامه مسیر در ردیف پایین</span></div>
+        <div class="tl-row r2">
+          <div class="tl-card hot" data-anim style="--d:.56s">
+            <div class="img-frame tl-img" data-label="📸 Deep Learning"><img src="images/deep-learning-nn.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+            <span class="yr">از حدود ۲۰۱۰</span><h4>جهش یادگیری عمیق</h4><p>موفقیت شبکه‌های عصبی عمیق در تشخیص تصویر، گفتار و پردازش زبان.</p>
+          </div>
+          <div class="tl-card hot" data-anim style="--d:.68s">
+            <div class="img-frame tl-img" data-label="📸 Transformer"><img src="images/transformer.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+            <span class="yr">۲۰۱۷</span><h4>معماری ترنسفورمر</h4><p>مقاله «Attention Is All You Need» که به توسعه مدل‌های زبانی مدرن کمک کرد.</p>
+          </div>
+          <div class="tl-card hot" data-anim style="--d:.8s">
+            <div class="img-frame tl-img" data-label="📸 ChatGPT"><img src="images/chatgpt.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+            <span class="yr">۲۰۲۲ و پس از آن</span><h4>هوش مصنوعی مولد</h4><p>معرفی عمومی ChatGPT در نوامبر ۲۰۲۲ و افزایش توجه عمومی.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 5 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۵</span><h2>چرا هوش مصنوعی در سال‌های اخیر ناگهان معروف شد؟</h2></header>
+      <div class="why-grid">
+        <div class="card why-card" data-anim style="--d:.1s">
+          <div class="why-ico"><svg class="ic"><use href="#i-chip"/></svg></div>
+          <span class="why-num">۰۱</span><h4>افزایش قدرت پردازش</h4>
+          <p>رایانه‌ها و پردازنده‌های گرافیکی قدرتمندتر شدند و آموزش مدل‌های بزرگ عملی‌تر شد.</p>
+        </div>
+        <div class="card why-card" data-anim style="--d:.24s">
+          <div class="why-ico"><svg class="ic"><use href="#i-data"/></svg></div>
+          <span class="why-num">۰۲</span><h4>افزایش حجم داده‌ها</h4>
+          <p>گسترش اینترنت، وب‌سایت‌ها، تصاویر، ویدئوها و متن‌های دیجیتال، داده بیشتری فراهم کرد.</p>
+        </div>
+        <div class="card why-card" data-anim style="--d:.38s">
+          <div class="why-ico"><svg class="ic"><use href="#i-gear"/></svg></div>
+          <span class="why-num">۰۳</span><h4>پیشرفت الگوریتم‌ها</h4>
+          <p>یادگیری عمیق و معماری ترنسفورمر، توانایی مدل‌ها در پردازش داده و زبان را افزایش دادند.</p>
+        </div>
+        <div class="card why-card" data-anim style="--d:.52s">
+          <div class="why-ico"><svg class="ic"><use href="#i-users"/></svg></div>
+          <span class="why-num">۰۴</span><h4>ساده شدن دسترسی</h4>
+          <p>کاربران بدون دانش برنامه‌نویسی تخصصی، با پرسش‌های معمولی به ابزارها دسترسی پیدا کردند.</p>
+        </div>
+      </div>
+      <div class="conclusion" data-anim style="--d:.7s">
+        <svg class="ic"><use href="#i-bolt"/></svg>
+        معروف شدن هوش مصنوعی حاصل ترکیب چند پیشرفت فنی و اجتماعی بود، نه اختراع ناگهانی در یک سال خاص.
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 6 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۶</span><h2>ChatGPT از کجا آمد و چرا معروف شد؟</h2></header>
+      <div class="two-col flip">
+        <div class="side-img" data-anim style="--d:.2s">
+          <div class="img-frame shine" data-label="📸 images/chatgpt-interface.jpg">
+            <img src="images/chatgpt-interface.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()">
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div class="facts">
+            <div class="fact" data-anim style="--d:.1s"><span class="b">●</span><span>شرکت <b>OpenAI</b> در سال <b>۲۰۱۵</b> تأسیس شد.</span></div>
+            <div class="fact" data-anim style="--d:.18s"><span class="b">●</span><span>خانواده مدل‌های <b>GPT</b> با یادگیری ماشین و پردازش زبان توسعه یافتند.</span></div>
+            <div class="fact" data-anim style="--d:.26s"><span class="b">●</span><span><b>GPT</b> مخفف <span style="direction:ltr;display:inline-block">Generative Pre-trained Transformer</span> است.</span></div>
+            <div class="fact" data-anim style="--d:.34s"><span class="b">●</span><span>مدل‌های زبانی بزرگ با آموزش روی حجم زیادی از داده، الگوهای زبان را یاد می‌گیرند.</span></div>
+            <div class="fact" data-anim style="--d:.42s"><span class="b">●</span><span>ChatGPT در <b>۳۰ نوامبر ۲۰۲۲</b> به‌صورت عمومی معرفی شد.</span></div>
+            <div class="fact" data-anim style="--d:.5s"><span class="b">●</span><span>رابط گفت‌وگومحور، کاربران زیادی را با هوش مصنوعی درگیر کرد.</span></div>
+          </div>
+          <div class="flow" style="gap:4px">
+            <div class="flow-step" data-anim style="--d:.6s"><span class="n">۱</span><span>پرسش کاربر</span></div>
+            <div class="flow-arrow" data-anim style="--d:.66s">▼</div>
+            <div class="flow-step" data-anim style="--d:.72s"><span class="n">۲</span><span>پردازش ورودی توسط مدل</span></div>
+            <div class="flow-arrow" data-anim style="--d:.78s">▼</div>
+            <div class="flow-step" data-anim style="--d:.84s"><span class="n">۳</span><span>تولید پاسخ</span></div>
+            <div class="flow-arrow" data-anim style="--d:.9s">▼</div>
+            <div class="flow-step" data-anim style="--d:.96s"><span class="n">۴</span><span>بررسی پاسخ توسط کاربر</span></div>
+          </div>
+          <div class="warn-box" data-anim style="--d:1.08s">
+            <svg class="ic"><use href="#i-alert"/></svg>
+            ChatGPT می‌تواند پاسخ اشتباه یا ساختگی تولید کند؛ پاسخ‌های مهم باید بررسی شوند.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 7 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۷</span><h2>هوش مصنوعی امروز چه توانایی‌هایی دارد و چگونه کار می‌کند؟</h2></header>
+      <div class="two-col" style="grid-template-columns:1fr 1.1fr">
+        <div class="venn-wrap" data-anim style="--d:.15s">
+          <svg class="venn" viewBox="0 0 340 340">
+            <circle cx="170" cy="170" r="158" fill="rgba(47,128,255,.10)" stroke="rgba(90,170,255,.6)" stroke-width="1.6"/>
+            <circle cx="170" cy="170" r="110" fill="rgba(34,224,214,.10)" stroke="rgba(34,224,214,.6)" stroke-width="1.6"/>
+            <circle cx="170" cy="170" r="62" fill="rgba(139,125,255,.18)" stroke="rgba(150,130,255,.75)" stroke-width="1.6">
+              <animate attributeName="r" values="62;66;62" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <text class="vt" x="170" y="28" text-anchor="middle">هوش مصنوعی</text>
+            <text class="vt sm" x="170" y="80" text-anchor="middle">یادگیری ماشین</text>
+            <text class="vt sm" x="170" y="177" text-anchor="middle">یادگیری عمیق</text>
+          </svg>
+          <div class="dl-note">مدل‌های مولد معمولاً پاسخ را بر اساس الگوهای آموخته‌شده تولید می‌کنند و الزاماً مانند انسان درک یا آگاهی ندارند.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:11px">
+          <div class="ability-grid">
+            <div class="ability" data-anim style="--d:.28s"><svg class="ic"><use href="#i-brain"/></svg>تولید و خلاصه‌سازی متن</div>
+            <div class="ability" data-anim style="--d:.38s"><svg class="ic"><use href="#i-eye"/></svg>تحلیل و دسته‌بندی تصویر</div>
+            <div class="ability" data-anim style="--d:.48s"><svg class="ic"><use href="#i-ap"/></svg>تشخیص گفتار</div>
+            <div class="ability" data-anim style="--d:.58s"><svg class="ic"><use href="#i-chip"/></svg>کمک به برنامه‌نویسی</div>
+            <div class="ability" data-anim style="--d:.68s"><svg class="ic"><use href="#i-chart"/></svg>تحلیل الگوهای داده</div>
+            <div class="ability" data-anim style="--d:.78s"><svg class="ic"><use href="#i-bolt"/></svg>پیش‌بینی برخی رخدادها</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 8 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۸</span><h2>ارتباط هوش مصنوعی با شبکه‌های کامپیوتری</h2></header>
+      <div class="equip-row">
+        <div class="equip" data-anim style="--d:.08s">
+          <div class="img-frame equip-img" data-label="📸 router"><img src="images/router.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <h5>روتر</h5><small>ROUTER</small><p>هدایت بسته‌های داده بین شبکه‌ها</p>
+        </div>
+        <div class="equip" data-anim style="--d:.18s">
+          <div class="img-frame equip-img" data-label="📸 switch"><img src="images/switch.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <h5>سوئیچ</h5><small>SWITCH</small><p>انتقال فریم‌ها در شبکه محلی</p>
+        </div>
+        <div class="equip" data-anim style="--d:.28s">
+          <div class="img-frame equip-img" data-label="📸 server"><img src="images/server.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <h5>سرور</h5><small>SERVER</small><p>ارائه سرویس و منابع</p>
+        </div>
+        <div class="equip" data-anim style="--d:.38s">
+          <div class="img-frame equip-img" data-label="📸 AP"><img src="images/access-point.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <h5>اکسس‌پوینت</h5><small>ACCESS POINT</small><p>فراهم کردن اتصال بی‌سیم</p>
+        </div>
+        <div class="equip" data-anim style="--d:.48s">
+          <div class="img-frame equip-img" data-label="📸 client"><img src="images/client.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <h5>کلاینت</h5><small>CLIENT</small><p>استفاده‌کننده از خدمات شبکه</p>
+        </div>
+      </div>
+      <div class="pipe" data-anim style="--d:.62s">
+        <div class="pipe-inner">
+          <div class="pipe-step"><svg class="ic"><use href="#i-switch"/></svg><span>تجهیزات شبکه</span></div>
+          <span class="pipe-arrow">◀</span>
+          <div class="pipe-step"><svg class="ic"><use href="#i-data"/></svg><span>جمع‌آوری داده</span></div>
+          <span class="pipe-arrow">◀</span>
+          <div class="pipe-step"><svg class="ic"><use href="#i-brain"/></svg><span>تحلیل هوشمند</span></div>
+          <span class="pipe-arrow">◀</span>
+          <div class="pipe-step"><svg class="ic"><use href="#i-search"/></svg><span>شناسایی الگو یا مشکل</span></div>
+          <span class="pipe-arrow">◀</span>
+          <div class="pipe-step"><svg class="ic"><use href="#i-alert"/></svg><span>هشدار، پیشنهاد یا اقدام مجاز</span></div>
+        </div>
+      </div>
+      <div class="conclusion" data-anim style="--d:.8s">
+        <svg class="ic"><use href="#i-shield"/></svg>
+        هوش مصنوعی جایگزین تجهیزات شبکه نیست و همه تجهیزات قابلیت هوش مصنوعی ندارند.
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 9 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۰۹</span><h2>هوش مصنوعی در امنیت و عیب‌یابی شبکه</h2></header>
+      <div class="two-col" style="grid-template-columns:1fr 1.15fr">
+        <div class="side-img" data-anim style="--d:.2s">
+          <div class="img-frame shine" data-label="📸 images/network-security.jpg">
+            <img src="images/network-security.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()">
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:11px;min-width:0">
+          <div class="sec-grid" style="grid-template-columns:1fr">
+            <div class="card sec-panel" data-anim style="--d:.12s">
+              <div class="sec-head"><svg class="ic" style="color:#8bfff4"><use href="#i-lock"/></svg> امنیت شبکه</div>
+              <ul>
+                <li>شناسایی الگوهای مشکوک در ترافیک شبکه</li>
+                <li>تشخیص رفتار غیرعادی دستگاه‌ها</li>
+                <li>کمک به اولویت‌بندی هشدارهای امنیتی</li>
+              </ul>
+            </div>
+            <div class="card sec-panel" data-anim style="--d:.28s">
+              <div class="sec-head"><svg class="ic" style="color:#8bfff4"><use href="#i-search"/></svg> عیب‌یابی شبکه</div>
+              <ul>
+                <li>تحلیل اطلاعات مربوط به تأخیر و خطا</li>
+                <li>شناسایی نقاط احتمالی ازدحام</li>
+                <li>کمک به پیدا کردن علت احتمالی کندی یا اختلال</li>
+              </ul>
+            </div>
+          </div>
+          <div class="example" data-anim style="--d:.46s">
+            <svg class="ic"><use href="#i-alert"/></svg>
+            <p><b>مثال آموزشی:</b> در یک مدرسه، کاربران از کند شدن شبکه شکایت دارند. سامانه نظارتی افزایش ترافیک و بالا رفتن تأخیر را تشخیص می‌دهد. ابزار تحلیل، این اطلاعات را به مدیر شبکه ارائه می‌کند تا با بررسی سوئیچ، روتر، لینک ارتباطی و تنظیمات، علت واقعی را مشخص کند.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 10 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۱۰</span><h2>هوش مصنوعی چگونه به تجهیزات شبکه کمک می‌کند؟</h2></header>
+      <div class="hw-grid">
+        <div class="card hw-card" data-anim style="--d:.08s">
+          <div class="img-frame hw-img" data-label="📸 router"><img src="images/router-ai.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <div><h4>روتر و سوئیچ</h4><p>تحلیل ترافیک و وضعیت عملکرد در سامانه‌های مدیریت سازگار.</p></div>
+        </div>
+        <div class="card hw-card" data-anim style="--d:.2s">
+          <div class="img-frame hw-img" data-label="📸 AP"><img src="images/access-point-ai.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <div><h4>اکسس‌پوینت</h4><p>کمک به مدیریت شبکه بی‌سیم و تحلیل وضعیت اتصال در محصولات پشتیبانی‌شده.</p></div>
+        </div>
+        <div class="card hw-card" data-anim style="--d:.32s">
+          <div class="img-frame hw-img" data-label="📸 firewall"><img src="images/firewall.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <div><h4>فایروال</h4><p>کمک به تحلیل رخدادهای امنیتی و شناسایی الگوهای مشکوک.</p></div>
+        </div>
+        <div class="card hw-card" data-anim style="--d:.44s">
+          <div class="img-frame hw-img" data-label="📸 server"><img src="images/managed-server.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <div><h4>سرور مدیریت شبکه</h4><p>اجرای ابزارهای پایش، تحلیل داده و ارائه پیشنهاد برای عیب‌یابی.</p></div>
+        </div>
+        <div class="card hw-card" data-anim style="--d:.56s">
+          <div class="img-frame hw-img" data-label="📸 datacenter"><img src="images/datacenter.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <div><h4>دیتاسنتر</h4><p>پایش هوشمند تجهیزات و کمک به بهینه‌سازی مصرف انرژی و منابع.</p></div>
+        </div>
+        <div class="card hw-card" data-anim style="--d:.68s">
+          <div class="img-frame hw-img" data-label="📸 cloud"><img src="images/cloud-service.jpg" alt="" onerror="this.parentElement.classList.add('no-img');this.remove()"></div>
+          <div><h4>سرویس ابری</h4><p>پردازش تحلیل‌ها می‌تواند روی سرویس ابری نیز انجام شود.</p></div>
+        </div>
+      </div>
+      <div class="proc-note" data-anim style="--d:.82s">
+        <svg class="ic" style="width:24px;height:24px"><use href="#i-chip"/></svg>
+        پردازش هوش مصنوعی ممکن است <b style="color:#8bfff4;margin:0 4px">روی خود دستگاه</b>،
+        <b style="color:#8bfff4;margin:0 4px">سرور داخلی</b> یا
+        <b style="color:#8bfff4;margin:0 4px">سرویس ابری</b> انجام شود؛ این موضوع به طراحی و قابلیت محصول بستگی دارد.
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 11 ===== -->
+    <section class="slide">
+      <header class="s-head" data-anim><span class="s-num">۱۱</span><h2>مزایا، محدودیت‌ها و آینده هوش مصنوعی در شبکه</h2></header>
+      <div class="pc-grid">
+        <div class="card pc-panel good" data-anim style="--d:.12s">
+          <div class="pc-title"><svg class="ic"><use href="#i-check"/></svg> مزایا</div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>تحلیل سریع حجم زیادی از داده‌ها</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>کمک به تشخیص برخی مشکلات</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>شناسایی رفتارهای غیرعادی</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>پیش‌بینی احتمالی ازدحام یا اختلال</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>کاهش بخشی از کارهای تکراری</li>
+          </ul>
+        </div>
+        <div class="card pc-panel bad" data-anim style="--d:.28s">
+          <div class="pc-title"><svg class="ic"><use href="#i-x"/></svg> محدودیت‌ها</div>
+          <ul>
+            <li><svg class="ic"><use href="#i-x"/></svg>احتمال خطا در تحلیل</li>
+            <li><svg class="ic"><use href="#i-x"/></svg>وابستگی به کیفیت داده‌ها</li>
+            <li><svg class="ic"><use href="#i-x"/></svg>هزینه اجرا و نگهداری</li>
+            <li><svg class="ic"><use href="#i-x"/></svg>مسائل امنیت و حریم خصوصی</li>
+            <li><svg class="ic"><use href="#i-x"/></svg>نیاز به متخصص برای نظارت و تأیید اقدامات حساس</li>
+          </ul>
+        </div>
+      </div>
+      <div class="future-strip" data-anim style="--d:.46s">
+        <span class="lbl">آینده:</span>
+        <span class="chip c">شبکه‌های خودمدیریت‌شونده</span>
+        <span class="chip">پیش‌بینی اختلال‌ها پیش از گسترش</span>
+        <span class="chip v">تنظیم خودکار پارامترهای شبکه</span>
+        <span class="chip c">همکاری متخصصان با ابزارهای هوشمند</span>
+      </div>
+      <div class="conclusion" data-anim style="--d:.62s">
+        <svg class="ic"><use href="#i-rocket"/></svg>
+        آینده شبکه فقط به تجهیزات سریع‌تر وابسته نیست؛ تحلیل هوشمند داده‌ها نیز نقش مهمی در مدیریت شبکه خواهد داشت.
+      </div>
+    </section>
+
+    <!-- ===== SLIDE 12 ===== -->
+    <section class="slide slide-final">
+      <div class="final-bg"></div>
+      <div class="sum-wrap">
+        <div class="sum-item" data-anim style="--d:.1s">
+          <span class="n">۱</span>
+          <p>هوش مصنوعی نتیجه چندین دهه پژوهش است؛ ریشه‌های رسمی آن به دهه ۱۹۵۰ بازمی‌گردد.</p>
+        </div>
+        <div class="sum-item" data-anim style="--d:.24s">
+          <span class="n">۲</span>
+          <p>قدرت پردازش، داده‌های بیشتر، پیشرفت الگوریتم‌ها و دسترسی آسان، موجب گسترش کاربرد آن در سال‌های اخیر شدند.</p>
+        </div>
+        <div class="sum-item" data-anim style="--d:.38s">
+          <span class="n">۳</span>
+          <p>هوش مصنوعی می‌تواند در مدیریت، امنیت، عیب‌یابی و بهینه‌سازی شبکه کمک کند؛ اما به داده مناسب، طراحی صحیح و نظارت متخصص نیاز دارد.</p>
+        </div>
+        <div class="big-quote grad" data-anim style="--d:.54s">
+          «از ماشین‌های محاسباتی اولیه تا شبکه‌های هوشمند؛<br>هوش مصنوعی حاصل دهه‌ها پیشرفت علمی است.»
+        </div>
+        <div class="end-box" data-anim style="--d:.72s">
+          <div class="end-thanks">ممنون از نگاه شما</div>
+          <div class="end-qa"><span class="dot"></span> پرسش و پاسخ</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ================= NOTES PANEL ================= -->
+<aside class="notes" id="notes">
+  <div class="notes-head">
+    <span>🗒 یادداشت ارائه‌دهنده</span>
+    <button id="notesClose" title="بستن">✕</button>
+  </div>
+  <div class="notes-body" id="notesBody"></div>
+</aside>
+
+<!-- ================= HUD ================= -->
+<div class="hud">
+  <div class="hud-progress"><i id="bar"></i></div>
+  <div class="hud-bar">
+    <button class="hud-btn" id="btnPrev" title="اسلاید قبلی">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="hud-btn" id="btnNext" title="اسلاید بعدی">›</button>
+    <span class="hud-count" id="count">۱ / ۱۲</span>
+    <button class="hud-btn small" id="btnNotes" title="یادداشت‌ها (N)">🗒</button>
+    <button class="hud-btn small" id="btnFull" title="تمام‌صفحه (F)">⛶</button>
+  </div>
+</div>
+
+<div class="hint">← → برای جابه‌جایی • N یادداشت‌ها • F تمام‌صفحه</div>
+
+<script>
+/* ====== Neural background ====== */
+(function(){
+  const svg = document.getElementById('neural');
+  if(!svg) return;
+  const W=1280,H=720,N=46,pts=[];
+  for(let i=0;i<N;i++) pts.push({x:Math.random()*W,y:Math.random()*H,r:1.2+Math.random()*2.8});
+  let out='<defs><linearGradient id="ng" x1="0" y1="0" x2="1" y2="1">'
+    +'<stop offset="0" stop-color="#2f80ff"/><stop offset="1" stop-color="#22e0d6"/>'
+    +'</linearGradient></defs>';
+  for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){
+    const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+    if(d<180){
+      const o=((1-d/180)*0.62).toFixed(2);
+      out+=`<line x1="${pts[i].x.toFixed(1)}" y1="${pts[i].y.toFixed(1)}" x2="${pts[j].x.toFixed(1)}" y2="${pts[j].y.toFixed(1)}" stroke="url(#ng)" stroke-width="1" opacity="${o}"/>`;
+    }
+  }
+  for(let i=0;i<N;i++){
+    const dur=(3+Math.random()*4.5).toFixed(1);
+    out+=`<circle cx="${pts[i].x.toFixed(1)}" cy="${pts[i].y.toFixed(1)}" r="${pts[i].r.toFixed(1)}" fill="#7fd8ff"><animate attributeName="opacity" values="0.2;0.95;0.2" dur="${dur}s" repeatCount="indefinite"/></circle>`;
+  }
+  svg.innerHTML=out;
+})();
+
+/* ====== Speaker notes ====== */
+const NOTES = [
+`<h4>اسلاید ۱ — صفحه عنوان</h4>سلام و وقت بخیر. امروز می‌خواهیم درباره هوش مصنوعی صحبت کنیم؛ اما از زاویه درس شبکه. اول می‌بینیم این فناوری از کجا آمده و بعد وارد این موضوع می‌شویم که چطور در شبکه، تجهیزات شبکه، امنیت و عیب‌یابی به کار می‌آید. ارائه حدود ده دقیقه طول می‌کشد.`,
+`<h4>اسلاید ۲ — هوش مصنوعی چیست؟</h4>هوش مصنوعی شاخه‌ای از علوم رایانه است که روش‌هایی برای تحلیل داده، تشخیص الگو، فهم زبان، پیش‌بینی و کمک به تصمیم‌گیری فراهم می‌کند. این ایده با ChatGPT به وجود نیامد. در دهه ۱۹۴۰ با پیشرفت رایانه‌های الکترونیکی شکل گرفت. در ۱۹۵۰ تورینگ مقاله‌اش را منتشر کرد. در ۱۹۵۶ در کارگاه دارتموث، اصطلاح «هوش مصنوعی» رسماً مطرح شد. سال ۱۹۵۶ را آغاز رسمی حوزه می‌دانیم.
+<div class="src"><b>منبع:</b> مقاله Turing (۱۹۵۰) و اسناد Dartmouth (۱۹۵۶).</div>`,
+`<h4>اسلاید ۳ — چهره‌های مهم</h4>هوش مصنوعی اختراع یک نفر نیست. تورینگ، مک‌کارتی، مینسکی، ساموئل و هینتون/لوکان/بنجیو از چهره‌های کلیدی هستند. این افراد تنها بخشی از تاریخ گسترده‌اند؛ پیشرفت این حوزه حاصل تلاش پژوهشگران سراسر جهان است.`,
+`<h4>اسلاید ۴ — خط زمانی</h4>پیشرفت هوش مصنوعی خطی نبوده. دهه ۵۰ و ۶۰ آغاز پژوهش‌ها. دهه ۷۰ و بخشی از ۸۰ «زمستان هوش مصنوعی». دهه ۸۰ سامانه‌های خبره. دهه ۹۰ و ۲۰۰۰ روش‌های داده‌محور. از ۲۰۱۰ جهش یادگیری عمیق. ۲۰۱۷ ترنسفورمر. ۲۰۲۲ ChatGPT.
+<div class="src"><b>منبع:</b> Attention Is All You Need (۲۰۱۷) و اطلاعیه OpenAI (۲۰۲۲).</div>`,
+`<h4>اسلاید ۵ — چرا ناگهان معروف شد؟</h4>چهار دلیل: قدرت پردازش، حجم داده، پیشرفت الگوریتم، سادگی دسترسی. معروف شدن AI حاصل ترکیب چند پیشرفت فنی و اجتماعی بود، نه اختراع ناگهانی.`,
+`<h4>اسلاید ۶ — ChatGPT</h4>ChatGPT اولین AI نبود. OpenAI در ۲۰۱۵ تأسیس شد. GPT یعنی Generative Pre-trained Transformer. ChatGPT در ۳۰ نوامبر ۲۰۲۲ معرفی شد. نکته مهم: می‌تواند پاسخ اشتباه تولید کند؛ پاسخ‌های مهم باید بررسی شوند.
+<div class="src"><b>منبع:</b> اطلاعیه رسمی OpenAI، نوامبر ۲۰۲۲.</div>`,
+`<h4>اسلاید ۷ — توانایی‌ها و ساختار</h4>سه مفهوم: AI، یادگیری ماشین، یادگیری عمیق. یادگیری عمیق زیرمجموعه یادگیری ماشین و آن هم زیرمجموعه AI است. مدل‌های مولد پاسخ را بر اساس الگوهای آموخته‌شده تولید می‌کنند و آگاهی انسانی ندارند.`,
+`<h4>اسلاید ۸ — ارتباط با شبکه</h4>اجزای شبکه: روتر، سوئیچ، سرور، اکسس‌پوینت، کلاینت. تجهیزات داده‌هایی مثل ترافیک، تأخیر و خطا ثبت می‌کنند. AI در صورت دسترسی به داده، این اطلاعات را تحلیل می‌کند و هشدار یا پیشنهاد می‌دهد. AI جایگزین تجهیزات نیست.`,
+`<h4>اسلاید ۹ — امنیت و عیب‌یابی</h4>در امنیت: شناسایی الگوهای مشکوک، رفتار غیرعادی، اولویت‌بندی هشدارها. در عیب‌یابی: تحلیل تأخیر و خطا، شناسایی ازدحام، کمک به پیدا کردن علت. نتیجه تحلیل AI قطعی نیست و باید با بررسی فنی تأیید شود.`,
+`<h4>اسلاید ۱۰ — تجهیزات شبکه</h4>AI در روتر/سوئیچ (تحلیل ترافیک)، اکسس‌پوینت (مدیریت بی‌سیم)، فایروال (رخدادهای امنیتی)، سرور مدیریت (پایش و پیشنهاد)، دیتاسنتر (بهینه‌سازی منابع). پردازش ممکن است روی دستگاه، سرور داخلی یا ابری باشد.`,
+`<h4>اسلاید ۱۱ — مزایا، محدودیت‌ها و آینده</h4>مزایا: تحلیل سریع، تشخیص مشکل، شناسایی رفتار غیرعادی، پیش‌بینی ازدحام، کاهش کار تکراری. محدودیت‌ها: خطا، وابستگی به داده، هزینه، امنیت و حریم خصوصی، نیاز به متخصص. آینده: شبکه‌های خودمدیریت‌شونده، پیش‌بینی اختلال، تنظیم خودکار.`,
+`<h4>اسلاید ۱۲ — جمع‌بندی</h4>سه نکته: ۱) AI نتیجه چند دهه پژوهش است و ریشه رسمی آن دهه ۱۹۵۰ است. ۲) قدرت پردازش، داده، الگوریتم و دسترسی آسان موجب گسترش اخیر شدند. ۳) AI در مدیریت، امنیت، عیب‌یابی و بهینه‌سازی شبکه کمک می‌کند، اما به داده مناسب، طراحی صحیح و نظارت متخصص نیاز دارد. ممنون از نگاه شما.
+<div class="src"><b>منابع کلی:</b> Turing (۱۹۵۰)، Dartmouth (۱۹۵۶)، Attention Is All You Need (۲۰۱۷)، OpenAI (۲۰۲۲).</div>`
+];
+
+/* ====== Navigation ====== */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dotsBox = document.getElementById('dots');
+const bar = document.getElementById('bar');
+const countEl = document.getElementById('count');
+const notesEl = document.getElementById('notes');
+const notesBody = document.getElementById('notesBody');
+let current = 0;
+
+const FA = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+const fa = n => String(n).replace(/\d/g, d => FA[+d]);
+
+slides.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.className = 'dot-btn';
+  b.title = 'اسلاید ' + fa(i+1);
+  b.addEventListener('click', () => go(i));
+  dotsBox.appendChild(b);
+});
+const dotEls = Array.from(dotsBox.children);
+
+function go(i){
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  if(i === current && slides[current].classList.contains('active')) return;
+  slides[current].classList.remove('active');
+  current = i;
+  const s = slides[current];
+  void s.offsetWidth;
+  s.classList.add('active');
+  dotEls.forEach((d, k) => d.classList.toggle('on', k === current));
+  bar.style.width = ((current + 1) / slides.length * 100) + '%';
+  countEl.textContent = fa(current + 1) + ' / ' + fa(slides.length);
+  notesBody.innerHTML = NOTES[current] || '';
+}
+
+function next(){ go(current + 1); }
+function prev(){ go(current - 1); }
+
+document.getElementById('btnNext').addEventListener('click', next);
+document.getElementById('btnPrev').addEventListener('click', prev);
+document.getElementById('notesClose').addEventListener('click', () => notesEl.classList.remove('open'));
+document.getElementById('btnNotes').addEventListener('click', () => notesEl.classList.toggle('open'));
+document.getElementById('btnFull').addEventListener('click', toggleFull);
+
+function toggleFull(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+window.addEventListener('keydown', e => {
+  switch(e.key){
+    case 'ArrowLeft': case 'PageDown': case ' ': case 'Enter':
+      e.preventDefault(); next(); break;
+    case 'ArrowRight': case 'PageUp':
+      e.preventDefault(); prev(); break;
+    case 'Home': e.preventDefault(); go(0); break;
+    case 'End': e.preventDefault(); go(slides.length - 1); break;
+    case 'n': case 'N': notesEl.classList.toggle('open'); break;
+    case 'f': case 'F': toggleFull(); break;
+    case 'Escape': notesEl.classList.remove('open'); break;
+  }
+});
+
+let tx = 0, ty = 0;
+window.addEventListener('touchstart', e => {
+  tx = e.changedTouches[0].clientX;
+  ty = e.changedTouches[0].clientY;
+}, {passive:true});
+window.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){
+    if(dx > 0) prev(); else next();
+  }
+}, {passive:true});
+
+const stage = document.getElementById('stage');
+function resize(){
+  if(window.innerWidth <= 900) return;
+  const pad = 78;
+  const s = Math.min(window.innerWidth / 1280, (window.innerHeight - pad) / 720);
+  stage.style.transform = 'scale(' + s + ')';
+}
+window.addEventListener('resize', resize);
+resize();
+
+go(0);
+notesBody.innerHTML = NOTES[0];
+</script>
+</body>
+</html>
